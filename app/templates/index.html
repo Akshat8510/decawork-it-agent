@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IT Admin Panel — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:      #0d0f12;
+    --surface: #161920;
+    --border:  #2a2e38;
+    --accent:  #00e5ff;
+    --green:   #00ff9d;
+    --red:     #ff3b5c;
+    --yellow:  #ffcc00;
+    --text:    #e4e8f0;
+    --muted:   #6b7280;
+    --mono:    'IBM Plex Mono', monospace;
+    --sans:    'IBM Plex Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
+
+  /* ── Layout ── */
+  .shell { display: flex; min-height: 100vh; }
+  nav {
+    width: 220px; flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 0;
+    display: flex; flex-direction: column;
+  }
+  .nav-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .nav-logo span { display: block; font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.08em; }
+  nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px;
+    color: var(--muted); text-decoration: none;
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.04em;
+    border-left: 3px solid transparent;
+    transition: all .15s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--text);
+    background: rgba(0,229,255,.05);
+    border-left-color: var(--accent);
+  }
+  nav a svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .main { flex: 1; overflow: auto; padding: 40px; }
+
+  /* ── Header ── */
+  .page-header { margin-bottom: 36px; }
+  .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .page-header p  { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: var(--mono); }
+
+  /* ── Stat cards ── */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 24px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px; background: var(--accent);
+  }
+  .stat-card.green::before { background: var(--green); }
+  .stat-card.red::before   { background: var(--red); }
+  .stat-card.yellow::before{ background: var(--yellow); }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; }
+  .stat-value { font-size: 36px; font-weight: 700; margin-top: 8px; font-family: var(--mono); }
+  .stat-card.green .stat-value  { color: var(--green); }
+  .stat-card.red .stat-value    { color: var(--red); }
+  .stat-card.yellow .stat-value { color: var(--yellow); }
+  .stat-card .stat-value        { color: var(--accent); }
+
+  /* ── Two-col grid ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-head a {
+    font-size: 11px; color: var(--accent); text-decoration: none;
+    font-family: var(--mono); letter-spacing: .05em;
+  }
+  .card-head a:hover { text-decoration: underline; }
+
+  /* ── User rows ── */
+  .user-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .user-row:last-child { border-bottom: none; }
+  .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent) 0%, #6e00ff 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #000; flex-shrink: 0;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-weight: 600; font-size: 13px; }
+  .user-email { color: var(--muted); font-family: var(--mono); font-size: 11px; margin-top: 2px; }
+  .badge {
+    padding: 2px 8px; border-radius: 3px;
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .badge-active   { background: rgba(0,255,157,.12); color: var(--green); border: 1px solid rgba(0,255,157,.3); }
+  .badge-disabled { background: rgba(255,59,92,.12);  color: var(--red);   border: 1px solid rgba(255,59,92,.3); }
+
+  /* ── Audit log ── */
+  .log-row {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .log-row:last-child { border-bottom: none; }
+  .log-time { color: var(--muted); font-family: var(--mono); font-size: 10px; white-space: nowrap; padding-top: 1px; }
+  .log-action { font-family: var(--mono); font-size: 10px; color: var(--accent); background: rgba(0,229,255,.08); padding: 1px 6px; border-radius: 2px; white-space: nowrap; }
+  .log-detail { color: var(--text); line-height: 1.4; }
+  .empty { padding: 24px 20px; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+
+  /* ── Flash messages ── */
+  .flashes { margin-bottom: 24px; }
+  .flash { padding: 12px 16px; border-radius: 4px; font-size: 13px; margin-bottom: 8px; border-left: 3px solid; }
+  .flash-success { background: rgba(0,255,157,.08); border-color: var(--green); color: var(--green); }
+  .flash-error   { background: rgba(255,59,92,.08);  border-color: var(--red);   color: var(--red);   }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav>
+    <div class="nav-logo">IT Admin<span>Control Panel v1.0</span></div>
+    <a href="/" class="active">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a href="/users">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      User Management
+    </a>
+    <a href="/licenses">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Licenses
+    </a>
+  </nav>
+
+  <main class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flashes">
+      {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <div class="page-header">
+      <h1>Dashboard</h1>
+      <p>system overview — {{ users|length }} total accounts</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat-card green">
+        <div class="stat-label">Active Users</div>
+        <div class="stat-value">{{ active_users }}</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Disabled Users</div>
+        <div class="stat-value">{{ disabled_users }}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Licenses</div>
+        <div class="stat-value">{{ total_licenses }}</div>
+      </div>
+      <div class="stat-card yellow">
+        <div class="stat-label">Licenses Used</div>
+        <div class="stat-value">{{ used_licenses }}</div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-head">
+          Recent Users
+          <a href="/users">View All →</a>
+        </div>
+        {% for email, u in users.items() %}
+        <div class="user-row">
+          <div class="avatar">{{ u.name[0] }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ u.name }}</div>
+            <div class="user-email">{{ u.email }}</div>
+          </div>
+          <span class="badge badge-{{ u.status }}">{{ u.status }}</span>
+        </div>
+        {% else %}
+        <div class="empty">No users found.</div>
+        {% endfor %}
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          Audit Log
+          <span>last 10 actions</span>
+        </div>
+        {% for entry in audit_log %}
+        <div class="log-row">
+          <div class="log-time">{{ entry.timestamp }}</div>
+          <div class="log-action">{{ entry.action }}</div>
+          <div class="log-detail">{{ entry.detail }}</div>
+        </div>
+        {% else %}
+        <div class="empty">No actions logged yet.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>
